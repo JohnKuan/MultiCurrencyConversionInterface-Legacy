@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import RxBiBinding
 import DropDown
 
 class CurrencyConvertorViewController: UIViewController {
@@ -35,17 +36,17 @@ class CurrencyConvertorViewController: UIViewController {
     }
     
     lazy var fromCardComponent: CurrencyInputCard = {
-        let view = CurrencyInputCard(type: .From)
-        view.viewModel = viewModel
-        view.bindDropdowns()
+        let view = CurrencyInputCard(type: .From, viewModel: viewModel)
+        (view.textField.rx.text <-> viewModel.didEnterFromAmount).disposed(by: disposeBag)
+        view.bindAll()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     lazy var toCardComponent: CurrencyInputCard = {
-        let view = CurrencyInputCard(type: .To)
-        view.viewModel = viewModel
-        view.bindDropdowns()
+        let view = CurrencyInputCard(type: .To, viewModel: viewModel)
+        (view.textField.rx.text <-> viewModel.didEnterToAmount).disposed(by: disposeBag)
+        view.bindAll()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

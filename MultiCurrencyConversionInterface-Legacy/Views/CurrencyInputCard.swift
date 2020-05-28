@@ -9,6 +9,7 @@
 import UIKit
 import DropDown
 import RxSwift
+import RxBiBinding
 
 enum CurrencyInputCardType {
     case From
@@ -18,7 +19,7 @@ enum CurrencyInputCardType {
 class CurrencyInputCard: UIView {
     // MARK: - Properties
     let disposeBag = DisposeBag()
-    var viewModel: CurrencyConversionViewModel!
+    private(set) var viewModel: CurrencyConversionViewModel!
     
     private var currencyInputCardType: CurrencyInputCardType = .To
     
@@ -73,8 +74,9 @@ class CurrencyInputCard: UIView {
         return textField
     }()
     
-    public init(type: CurrencyInputCardType) {
+    public init(type: CurrencyInputCardType, viewModel: CurrencyConversionViewModel) {
         super.init(frame: .zero)
+        self.viewModel = viewModel
         self.currencyInputCardType = type
         setupUI()
     }
@@ -109,7 +111,12 @@ class CurrencyInputCard: UIView {
 
 extension CurrencyInputCard {
     
-    func bindDropdowns() {
+    func bindAll() {
+        bindDropdowns()
+        bindTextField()
+    }
+    
+    private func bindDropdowns() {
        viewModel.availableExchangeRates
            .observeOn(MainScheduler.instance)
            .bind(onNext: { (newOptions) in
@@ -118,7 +125,36 @@ extension CurrencyInputCard {
            .disposed(by: disposeBag)
    }
     
-    func bindDidSelectDropdown() {
+    private func bindTextField() {
+        
+        //bind events when textfield is computed against
+        
+        
+
+        
+        // bind events when textfield is typed
+//        let statement = textField.rx.controlEvent([.allEditingEvents])
+//            .withLatestFrom(textField.rx.text)
+//            .map({ (text) -> Double in
+//                guard let t = text, let de = Double(t) else {
+//                    return 0
+//                }
+//                print(de)
+//                return de
+//            })
+//        switch self.currencyInputCardType {
+//            case .From:
+////               statement.bind(to: viewModel.didEnterFromAmount).disposed(by: disposeBag)
+//            viewModel.didEnterFromAmount.map { (newVal) -> String in
+//                return String(format: "%.2f", newVal)
+//                }.bind(to: textField.rx.text).disposed(by: disposeBag)
+//            default:
+////                statement.bind(to: viewModel.didEnterToAmount).disposed(by: disposeBag)
+//            viewModel.didEnterToAmount.map { (newVal) -> String in
+//                return String(format: "%.2f", newVal)
+//                }.bind(to: textField.rx.text).disposed(by: disposeBag)
+//        }
+        
     }
 }
 
