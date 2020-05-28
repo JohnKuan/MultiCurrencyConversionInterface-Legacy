@@ -9,6 +9,7 @@ target 'MultiCurrencyConversionInterface-Legacy' do
   pod 'RxSwift', '~> 5'
   pod 'RxCocoa', '~> 5'
   pod 'DropDown'
+  pod 'RxBiBinding'
   
 
   target 'MultiCurrencyConversionInterface-LegacyTests' do
