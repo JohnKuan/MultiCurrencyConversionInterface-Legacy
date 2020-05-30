@@ -13,3 +13,6 @@ struct CurrencyRateModel : Codable {
     let date: String
     let rates: Dictionary<String, Double>
 }
+
+
+

@@ -66,7 +66,7 @@ final class NetworkClient {
                     }
                     
                     do {
-                        let model = try JSONDecoder().decode(type, from: data)
+                        let model = try JSONDecoder().decode(type.self, from: data)
                         observer.onNext(.success(model))
                     } catch {
                         observer.onNext(.failure(NetworkError.decodingFailed))

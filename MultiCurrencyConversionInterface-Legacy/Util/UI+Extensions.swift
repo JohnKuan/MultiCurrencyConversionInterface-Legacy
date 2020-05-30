@@ -17,3 +17,28 @@ extension UIButton {
     setBackgroundImage(colorImage, for: controlState)
   }
 }
+
+protocol ReuseIdentifiable: class {
+    static var reuseIdentifier: String { get }
+}
+
+extension ReuseIdentifiable {
+    static var reuseIdentifier: String { .init(describing: self) }
+}
+
+extension UICollectionViewCell: ReuseIdentifiable {}
+extension UITableViewCell: ReuseIdentifiable {}
+
+struct Dimensions {
+    static let screenWidth: CGFloat
+        = UIScreen.main.bounds.width
+    static let screenHeight: CGFloat
+        = UIScreen.main.bounds.height
+    
+    static let historyCardSize
+        = CGSize(width: Dimensions.screenWidth * 0.9,
+                 height: Dimensions.screenWidth * 0.45)
+    
+    static let padding: CGFloat = 15.0
+    static let smallPadding: CGFloat = 8.0
+}

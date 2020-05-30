@@ -10,6 +10,8 @@ target 'MultiCurrencyConversionInterface-Legacy' do
   pod 'RxCocoa', '~> 5'
   pod 'DropDown'
   pod 'RxBiBinding'
+#  pod 'RealmSwift'
+  pod "RxRealm"
   
 
   target 'MultiCurrencyConversionInterface-LegacyTests' do

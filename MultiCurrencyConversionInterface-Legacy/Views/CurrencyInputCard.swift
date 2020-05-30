@@ -40,7 +40,7 @@ class CurrencyInputCard: UIView {
         button.setTitleColor(UIColor.gray, for: .normal)
         button.addTarget(self, action: #selector(toggleOptions), for: .touchUpInside)
         button.layer.borderWidth = 0.5
-        button.layer.borderColor = UIColor.cyan.cgColor
+        button.layer.borderColor = UIColor.darkGray.cgColor
         button.layer.cornerRadius = 1
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -66,10 +66,20 @@ class CurrencyInputCard: UIView {
         return dropDown
     }()
     
+    lazy var textFieldToolBar: UIToolbar = {
+        let toolbar = UIToolbar(frame: CGRect(origin: .zero, size: .init(width: self.frame.width, height: 30)))
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneButtonAction))
+        toolbar.setItems([flexSpace, doneButton], animated: false)
+        toolbar.sizeToFit()
+        return toolbar
+    }()
+    
     lazy var textField: UITextField = {
         let textField = UITextField()
         textField.keyboardType = .decimalPad
         textField.placeholder = "e.g. 1000"
+        textField.inputAccessoryView = textFieldToolBar
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -98,6 +108,10 @@ class CurrencyInputCard: UIView {
             dropDownView.show()
         }
         showOptions = !showOptions
+    }
+    
+    @objc func doneButtonAction() {
+        endEditing(true)
     }
     
     func setOptions(options: [DropdownOption]) {
@@ -197,10 +211,10 @@ extension CurrencyInputCard {
         
         
         NSLayoutConstraint.activate([
-            textField.leftAnchor.constraint(equalTo: dropDownButton.rightAnchor, constant: 15.0),
+            textField.leftAnchor.constraint(equalTo: dropDownButton.rightAnchor, constant: Dimensions.padding),
             textField.topAnchor.constraint(equalTo: dropDownButton.topAnchor),
             textField.bottomAnchor.constraint(equalTo: dropDownButton.bottomAnchor),
-            textField.rightAnchor.constraint(equalTo: rightAnchor, constant: -15.0),
+            textField.rightAnchor.constraint(equalTo: rightAnchor, constant: -Dimensions.padding),
         ])
     }
 }

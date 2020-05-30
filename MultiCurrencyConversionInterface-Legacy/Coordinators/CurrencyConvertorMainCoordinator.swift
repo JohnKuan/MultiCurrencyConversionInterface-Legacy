@@ -10,6 +10,8 @@ import UIKit
 
 protocol CurrencyConvertorMainCoordinator: class {
     func pushToHistory()
+    func pushToConvert()
+    func showAlert(convertString: String, completion: @escaping () -> ())
 }
 
 class CurrencyConvertorMainCoordinatorImplementation : Coordinator {
@@ -32,8 +34,36 @@ class CurrencyConvertorMainCoordinatorImplementation : Coordinator {
 extension CurrencyConvertorMainCoordinatorImplementation: CurrencyConvertorMainCoordinator {
     
     func pushToHistory() {
+//        let currencyConvertorViewController = CurrencyConvertorViewController()
+//        let ccVM = CurrencyConversionViewModel(exchangeRateAPIService: ExchangeRateAPIService(), coordinator: self)
+//        currencyConvertorViewController.viewModel = ccVM
+//        navigationController
+//            .pushViewController(currencyConvertorViewController, animated: true)
+//        
+////        coordinate(to: photoDetailCoordinator)
+//        
+        let historyPageCoordinator = CurrencyConvertorHistoryCoordinatorImplementation(
+            navigationController: navigationController)
+        coordinate(to: historyPageCoordinator)
         
-        
-//        coordinate(to: photoDetailCoordinator)
+    }
+    
+    func pushToConvert() {
+        self.pushToHistory()
+    }
+    
+    func showAlert(convertString: String, completion: @escaping () -> ()) {
+        let alert = UIAlertController(title: "Confirm", message: "Are you sure you want to convert \(convertString)? ", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "No", style: .default, handler: { _ in
+            //Cancel Action
+        }))
+        alert.addAction(UIAlertAction(title: "Yes",
+                                      style: .default,
+                                      handler: {(_: UIAlertAction!) in
+                                        //Sign out action
+                                        print("Yes")
+                                        completion()
+        }))
+        self.navigationController.present(alert, animated: true, completion: nil)
     }
 }
