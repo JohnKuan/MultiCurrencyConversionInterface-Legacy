@@ -39,8 +39,16 @@ protocol ICurrencyConversionViewModel: class {
     
 }
 
+protocol ITestableCurrencyConversionViewModel {
+    
+}
 
-class CurrencyConversionViewModel : ICurrencyConversionViewModel  {
+class TestCurrencyConversionViewModel: ITestableCurrencyConversionViewModel {
+    
+}
+
+
+class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurrencyConversionViewModel  {
     let repo = Repository()
     
     var wallet: Dictionary<String, Double> =
@@ -105,11 +113,7 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel  {
         bindOnDidSelectDropdownItem()
         bindOnTextFieldDidChange()
         bindButtons()
-        self.calculateConversion()
-        
-        
-//        verifyConvertable()
-//        didSelectFromCurrency.accept(baseCurrency)
+        bindCalculateConversion()
     }
     
     private func getCurrencyRate() {
@@ -118,9 +122,6 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel  {
         .map { [unowned self] (res) -> CurrencyRateModel in
             do {
                 let m = try res.get()
-                
-//                self.repo.saveCurrency(currencyRateModel: m)
-//                self.repo.readCurrency()
                 self.convertRatesFromDictToDropDownOptions(rates: m.rates)
                 return m
             }
@@ -181,7 +182,6 @@ extension CurrencyConversionViewModel {
             .observeOn(MainScheduler.instance)
             .do(onNext: { [unowned self] _ in
                 self.getCurrencyRate()
-//                        self.repo.updateWalletBalance(wallet: self.wallet)
                 self.retrieveWallet()
             })
             .subscribe()
@@ -293,7 +293,7 @@ extension CurrencyConversionViewModel {
             }).disposed(by: disposeBag)
     }
     
-    private func calculateConversion() {
+    private func bindCalculateConversion() {
         Observable.combineLatest(didSelectFromCurrency, didEnterFromAmount, didSelectToCurrency, didEnterToAmount)
             .observeOn(MainScheduler.instance)
             .map({ (fromCur, fromAmountString, toCur, toAmountString) -> String in
@@ -357,41 +357,15 @@ extension CurrencyConversionViewModel {
                 self.fromWalletBalanceLabel.accept("Balance: \(fromCur) " + String(format: "%.2f", self.currentValueInWalletFor(currency: fromCur)))
                 self.toWalletBalanceLabel.accept("Balance: \(toCur) " + String(format: "%.2f", self.currentValueInWalletFor(currency: toCur)))
                 self.enableConvertButton.accept(false)
-//                self.fromWalletBalanceNotExceed.accept(false)
                 print(self.wallet)
                 self.coordinator.pushToHistory()
             })
         disposable.dispose()
     }
     
-//    private func executeConversion() -> Observable {
-//
-//    }
-    
-//    private func verifyConvertable() {
-//        Observable
-//            .combineLatest(fromWalletBalance, didSelectFromCurrency, didEnterFromAmount, didSelectToCurrency, didEnterToAmount)
-//            .map({ (currentWalletBalanceVal, fromCur, fromAmount, toCur, toAmount) -> Result<String, Error> in
-//                if (currentWalletBalanceVal < 0) {
-//                    return .failure(ConvertableError.NegativeValue)
-//                } else if let fromAmount = fromAmount, let toAmount = toAmount, !fromAmount.isEmpty, !toAmount.isEmpty {
-//                    let conversionString = fromCur + fromAmount + " to " + toCur + toAmount
-//                    return .success(conversionString)
-//                }
-//                return .failure(ConvertableError.Fail)
-//            })
-//            .subscribe(onNext: { [unowned self] (res) in
-//                do {
-//                    let s = try res.get()
-//                    self.convertString = s
-//                    self.convertable = true
-//                } catch {
-//                    self.convertString = ""
-//                    self.convertable = false
-//                }
-//            })
-//            .disposed(by: disposeBag)
-//    }
+    func loadOnlyOnFirstAttempt() {
+        self.repo.updateWalletBalance(wallet: self.wallet)
+    }
 }
 
 enum ConvertableError : Error {

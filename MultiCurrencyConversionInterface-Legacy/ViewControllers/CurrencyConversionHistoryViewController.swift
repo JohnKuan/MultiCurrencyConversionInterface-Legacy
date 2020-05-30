@@ -24,7 +24,6 @@ class CurrencyConversionHistoryViewController: UIViewController {
         setupUI()
         bindCollectionView()
         bindLoadingState()
-        bindBottomActivityIndicator()
         
         viewModel.viewDidLoad.accept(())
         
@@ -58,7 +57,7 @@ class CurrencyConversionHistoryViewController: UIViewController {
 // MARK: - Binding
 extension CurrencyConversionHistoryViewController {
     private func bindCollectionView() {
-        /// Bind unsplash photos to the collection view items
+        
         viewModel.historyItems
             .bind(to: historyCollectionView.rx.items(
                 cellIdentifier: CurrencyHistoryItemCard.reuseIdentifier,
@@ -81,16 +80,6 @@ extension CurrencyConversionHistoryViewController {
             })
             .bind(to: navigationItem.rx.title)
             .disposed(by: disposeBag)
-    }
-    
-    private func bindBottomActivityIndicator() {
-//        viewModel.isLoadingAdditionalPhotos
-//            .observeOn(MainScheduler.instance)
-//            .do(onNext: { [weak self] isLoading in
-//                self?.updateConstraintForMode(loadingMorePhotos: isLoading)
-//            })
-//            .bind(to: bottomActivityIndicator.rx.isAnimating)
-//            .disposed(by: disposeBag)
     }
 }
 

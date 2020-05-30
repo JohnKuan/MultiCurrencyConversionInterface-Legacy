@@ -83,14 +83,12 @@ extension CurrencyHistoryItemCard {
         NSLayoutConstraint.activate([
             
             transactionAmountLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: Dimensions.padding),
-//            transactionAmountLabel.topAnchor.constraint(equalTo: transactionIDLabel.bottomAnchor, constant: 8.0),
             transactionAmountLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
         
         NSLayoutConstraint.activate([
             transactionRateAmountLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: Dimensions.padding),
             transactionRateAmountLabel.topAnchor.constraint(equalTo: transactionAmountLabel.bottomAnchor, constant: Dimensions.smallPadding),
-//            transactionRateAmountLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10.0)
         ])
     }
 }

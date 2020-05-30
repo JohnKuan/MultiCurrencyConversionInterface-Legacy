@@ -34,14 +34,6 @@ class CurrencyConvertorMainCoordinatorImplementation : Coordinator {
 extension CurrencyConvertorMainCoordinatorImplementation: CurrencyConvertorMainCoordinator {
     
     func pushToHistory() {
-//        let currencyConvertorViewController = CurrencyConvertorViewController()
-//        let ccVM = CurrencyConversionViewModel(exchangeRateAPIService: ExchangeRateAPIService(), coordinator: self)
-//        currencyConvertorViewController.viewModel = ccVM
-//        navigationController
-//            .pushViewController(currencyConvertorViewController, animated: true)
-//        
-////        coordinate(to: photoDetailCoordinator)
-//        
         let historyPageCoordinator = CurrencyConvertorHistoryCoordinatorImplementation(
             navigationController: navigationController)
         coordinate(to: historyPageCoordinator)

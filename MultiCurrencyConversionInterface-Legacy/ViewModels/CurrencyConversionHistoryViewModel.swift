@@ -42,7 +42,6 @@ class CurrencyConversionHistoryViewModel:  ICurrencyConversionHistoryViewModel  
     private func bindOnViewDidLoad() {
         viewDidLoad
             .do(onNext: { [unowned self] _ in
-//                self.getPhoto()
                 // fetch from data store
                 let realm = try! Realm()
                 let laps = realm.objects(ExchangeItemHistory.self)

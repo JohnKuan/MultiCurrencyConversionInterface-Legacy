@@ -127,7 +127,7 @@ extension CurrencyInputCard {
     
     func bindAll() {
         bindDropdowns()
-        bindTextField()
+
     }
     
     private func bindDropdowns() {
@@ -138,38 +138,6 @@ extension CurrencyInputCard {
            })
            .disposed(by: disposeBag)
    }
-    
-    private func bindTextField() {
-        
-        //bind events when textfield is computed against
-        
-        
-
-        
-        // bind events when textfield is typed
-//        let statement = textField.rx.controlEvent([.allEditingEvents])
-//            .withLatestFrom(textField.rx.text)
-//            .map({ (text) -> Double in
-//                guard let t = text, let de = Double(t) else {
-//                    return 0
-//                }
-//                print(de)
-//                return de
-//            })
-//        switch self.currencyInputCardType {
-//            case .From:
-////               statement.bind(to: viewModel.didEnterFromAmount).disposed(by: disposeBag)
-//            viewModel.didEnterFromAmount.map { (newVal) -> String in
-//                return String(format: "%.2f", newVal)
-//                }.bind(to: textField.rx.text).disposed(by: disposeBag)
-//            default:
-////                statement.bind(to: viewModel.didEnterToAmount).disposed(by: disposeBag)
-//            viewModel.didEnterToAmount.map { (newVal) -> String in
-//                return String(format: "%.2f", newVal)
-//                }.bind(to: textField.rx.text).disposed(by: disposeBag)
-//        }
-        
-    }
 }
 
 extension CurrencyInputCard {
@@ -195,17 +163,13 @@ extension CurrencyInputCard {
             titleLabel.leftAnchor.constraint(equalTo: leftAnchor),
             titleLabel.topAnchor
                 .constraint(equalTo: topAnchor),
-//            titleLabel.rightAnchor
-//                .constraint(equalTo: self.view.rightAnchor),
-//            titleLabel.heightAnchor
-//                .constraint(equalToConstant: Dimensions.screenHeight * 0.3)
         ])
         
         NSLayoutConstraint.activate([
             dropDownButton.leftAnchor.constraint(equalTo: leftAnchor),
             dropDownButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5.0),
             dropDownButton.widthAnchor.constraint(equalToConstant: 100.0),
-//            dropDownButton.heightAnchor.constraint(equalToConstant: 40.0),
+
             dropDownButton.bottomAnchor.constraint(greaterThanOrEqualTo: bottomAnchor)
         ])
         

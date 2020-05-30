@@ -27,6 +27,8 @@ class CurrencyConvertorViewController: UIViewController {
         bindWalletBalanceLabel()
         bindButtons()
         
+        /// load this for the first time only then comment out - this loads the original wallet into the persistent data
+        // viewModel.loadOnlyOnFirstAttempt()
         viewModel.viewDidLoad.accept(())
         
     }
@@ -111,23 +113,11 @@ class CurrencyConvertorViewController: UIViewController {
 
 extension CurrencyConvertorViewController {
     
-//    func bindDropdowns() {
-//        viewModel.availableExchangeRates
-//            .observeOn(MainScheduler.instance)
-//            .bind(onNext: { (newOptions) in
-//                self.fromCardComponent.setOptions(options: newOptions)
-//                self.toCardComponent.setOptions(options: newOptions)
-//            })
-//            .disposed(by: disposeBag)
-//
-//    }
-    
     private func bindButtons() {
         
         // convert button
         convertButton.rx.tap.bind(to: viewModel.didSelectConvertButton).disposed(by: disposeBag)
         viewModel.enableConvertButton.observeOn(MainScheduler.instance).bind(to: convertButton.rx.isEnabled).disposed(by: disposeBag)
-        
         
         historyButton.rx.tap.bind(to: viewModel.didSelectHistoryButton).disposed(by: disposeBag)
     }
@@ -147,11 +137,6 @@ extension CurrencyConvertorViewController {
             .observeOn(MainScheduler.instance)
             .bind (to: toWalletBalanceLabel.rx.text)
         .disposed(by: disposeBag)
-        
-//        viewModel.toWalletBalanceNotExceed.observeOn(MainScheduler.instance)
-//            .subscribe(onNext: { [unowned self] (available) in
-//                self.toWalletBalanceLabel.textColor = available ? UIColor.gray : UIColor.red
-//            }).disposed(by: disposeBag)
         
     }
     

@@ -14,7 +14,6 @@ import RxTest
 
 class CurrencyServiceTest: XCTestCase {
     
-//    var observer: PublishRelay<Result<CurrencyRateModel, Error>>!
     var disposeBag: DisposeBag!
     var scheduler: TestScheduler!
     
@@ -22,7 +21,6 @@ class CurrencyServiceTest: XCTestCase {
     override func setUp() {
         super.setUp()
         self.scheduler = TestScheduler(initialClock: 0)
-//        self.observer = PublishRelay<Result<CurrencyRateModel, Error>>()
         self.disposeBag = DisposeBag()
 
     }
@@ -31,7 +29,6 @@ class CurrencyServiceTest: XCTestCase {
         
         let request = scheduler.createObserver(Result<CurrencyRateModel, Error>.self)
         exchangeRateAPIService.loadCurrencyRates(urlString: ExchangeRateAPIService.exchangeURL).bind(to: request).disposed(by: disposeBag)
-//        scheduler.start()
           
         XCTAssert(request.events.count > 0, "Expected something")
     }
