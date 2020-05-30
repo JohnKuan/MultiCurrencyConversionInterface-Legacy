@@ -10,6 +10,7 @@
 		46967CABEDB6B35AACE4D246 /* Pods_MultiCurrencyConversionInterface_Legacy_MultiCurrencyConversionInterface_LegacyUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2571A47638985C6252A22DBC /* Pods_MultiCurrencyConversionInterface_Legacy_MultiCurrencyConversionInterface_LegacyUITests.framework */; };
 		8025887A8B075F96AE22D803 /* Pods_MultiCurrencyConversionInterface_LegacyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CA14921345B3EF4BB849884 /* Pods_MultiCurrencyConversionInterface_LegacyTests.framework */; };
 		AEEA121AFE22153B00BE4D13 /* Pods_MultiCurrencyConversionInterface_Legacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00D286CE300C9062E5D18DDC /* Pods_MultiCurrencyConversionInterface_Legacy.framework */; };
+		B20E91A724829B0300F0DAFC /* CurrencyServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20E91A624829B0300F0DAFC /* CurrencyServiceTest.swift */; };
 		B2170319248141D600C6C3CD /* CurrencyHistoryItemCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2170318248141D600C6C3CD /* CurrencyHistoryItemCard.swift */; };
 		B217031B2481477500C6C3CD /* CurrencyConvertorHistoryCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B217031A2481477500C6C3CD /* CurrencyConvertorHistoryCoordinator.swift */; };
 		B2CE2ED9247F57C30070FCC0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CE2ED8247F57C30070FCC0 /* AppDelegate.swift */; };
@@ -66,6 +67,7 @@
 		52C7646B95D37C73FA032D78 /* Pods-MultiCurrencyConversionInterface-LegacyTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MultiCurrencyConversionInterface-LegacyTests.debug.xcconfig"; path = "Target Support Files/Pods-MultiCurrencyConversionInterface-LegacyTests/Pods-MultiCurrencyConversionInterface-LegacyTests.debug.xcconfig"; sourceTree = "<group>"; };
 		6CA14921345B3EF4BB849884 /* Pods_MultiCurrencyConversionInterface_LegacyTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MultiCurrencyConversionInterface_LegacyTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D52163DE9D491DEF8D7022E /* Pods-MultiCurrencyConversionInterface-Legacy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MultiCurrencyConversionInterface-Legacy.release.xcconfig"; path = "Target Support Files/Pods-MultiCurrencyConversionInterface-Legacy/Pods-MultiCurrencyConversionInterface-Legacy.release.xcconfig"; sourceTree = "<group>"; };
+		B20E91A624829B0300F0DAFC /* CurrencyServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyServiceTest.swift; sourceTree = "<group>"; };
 		B2170318248141D600C6C3CD /* CurrencyHistoryItemCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyHistoryItemCard.swift; sourceTree = "<group>"; };
 		B217031A2481477500C6C3CD /* CurrencyConvertorHistoryCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyConvertorHistoryCoordinator.swift; sourceTree = "<group>"; };
 		B2CE2ED5247F57C30070FCC0 /* MultiCurrencyConversionInterface-Legacy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MultiCurrencyConversionInterface-Legacy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -195,6 +197,7 @@
 			children = (
 				B2CE2EF2247F57C40070FCC0 /* MultiCurrencyConversionInterface_LegacyTests.swift */,
 				B2CE2EF4247F57C40070FCC0 /* Info.plist */,
+				B20E91A624829B0300F0DAFC /* CurrencyServiceTest.swift */,
 			);
 			path = "MultiCurrencyConversionInterface-LegacyTests";
 			sourceTree = "<group>";
@@ -571,6 +574,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B20E91A724829B0300F0DAFC /* CurrencyServiceTest.swift in Sources */,
 				B2CE2EF3247F57C40070FCC0 /* MultiCurrencyConversionInterface_LegacyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
