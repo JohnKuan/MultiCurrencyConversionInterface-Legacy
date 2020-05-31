@@ -13,6 +13,7 @@
 		B20E91A724829B0300F0DAFC /* CurrencyServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20E91A624829B0300F0DAFC /* CurrencyServiceTest.swift */; };
 		B2170319248141D600C6C3CD /* CurrencyHistoryItemCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2170318248141D600C6C3CD /* CurrencyHistoryItemCard.swift */; };
 		B217031B2481477500C6C3CD /* CurrencyConvertorHistoryCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B217031A2481477500C6C3CD /* CurrencyConvertorHistoryCoordinator.swift */; };
+		B24EF68D24838997000A5982 /* CurrencyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24EF68C24838997000A5982 /* CurrencyTextField.swift */; };
 		B2CE2ED9247F57C30070FCC0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CE2ED8247F57C30070FCC0 /* AppDelegate.swift */; };
 		B2CE2EDB247F57C30070FCC0 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CE2EDA247F57C30070FCC0 /* SceneDelegate.swift */; };
 		B2CE2EDD247F57C30070FCC0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CE2EDC247F57C30070FCC0 /* ViewController.swift */; };
@@ -70,6 +71,7 @@
 		B20E91A624829B0300F0DAFC /* CurrencyServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyServiceTest.swift; sourceTree = "<group>"; };
 		B2170318248141D600C6C3CD /* CurrencyHistoryItemCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyHistoryItemCard.swift; sourceTree = "<group>"; };
 		B217031A2481477500C6C3CD /* CurrencyConvertorHistoryCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyConvertorHistoryCoordinator.swift; sourceTree = "<group>"; };
+		B24EF68C24838997000A5982 /* CurrencyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyTextField.swift; sourceTree = "<group>"; };
 		B2CE2ED5247F57C30070FCC0 /* MultiCurrencyConversionInterface-Legacy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MultiCurrencyConversionInterface-Legacy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2CE2ED8247F57C30070FCC0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B2CE2EDA247F57C30070FCC0 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 			children = (
 				B2CE2F2C247FBA490070FCC0 /* Rx+Extensions.swift */,
 				B2CE2F2E2480E9510070FCC0 /* UI+Extensions.swift */,
+				B24EF68C24838997000A5982 /* CurrencyTextField.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -570,6 +573,7 @@
 				B2E75732248108B80067C226 /* CurrencyConversionHistoryViewController.swift in Sources */,
 				B217031B2481477500C6C3CD /* CurrencyConvertorHistoryCoordinator.swift in Sources */,
 				B2170319248141D600C6C3CD /* CurrencyHistoryItemCard.swift in Sources */,
+				B24EF68D24838997000A5982 /* CurrencyTextField.swift in Sources */,
 				B2CE2F12247F5A4F0070FCC0 /* CurrencyConversionViewModel.swift in Sources */,
 				B2CE2F0F247F59740070FCC0 /* CurrencyInputCard.swift in Sources */,
 				B2CE2EDB247F57C30070FCC0 /* SceneDelegate.swift in Sources */,
