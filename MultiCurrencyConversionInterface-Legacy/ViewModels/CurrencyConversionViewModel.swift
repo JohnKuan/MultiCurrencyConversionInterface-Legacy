@@ -19,7 +19,7 @@ protocol ICurrencyConversionViewModel: class {
     var didSelectToCurrency: BehaviorRelay<String> { get }
     var didEnterToAmount: BehaviorRelay<String?> { get }
     var didSelectConvertButton: PublishRelay<Void> { get }
-    var enableConvertButton: PublishRelay<Bool> { get }
+    
     var didSelectHistoryButton: PublishRelay<Void> { get }
     
     // Output
@@ -28,14 +28,15 @@ protocol ICurrencyConversionViewModel: class {
     var availableExchangeRates: BehaviorRelay<[DropdownOption]> { get }
     var rateExchange: PublishRelay<Double> { get }
     var rateExchangeLabel: BehaviorRelay<String> { get }
+    var enableConvertButton: BehaviorDriver<Bool> { get }
     
     var fromWalletBalance: PublishRelay<Double> { get }
-    var fromWalletBalanceLabel: PublishRelay<String> { get }
-    var fromWalletBalanceNotExceed: PublishRelay<Bool> { get }
+    var fromWalletBalanceLabel: BehaviorRelay<String> { get }
+    var fromWalletBalanceNotExceed: BehaviorRelay<Bool> { get }
     
     var toWalletBalance: PublishRelay<Double> { get }
-    var toWalletBalanceLabel: PublishRelay<String> { get }
-    var toWalletBalanceNotExceed: PublishRelay<Bool> { get }
+    var toWalletBalanceLabel: BehaviorRelay<String> { get }
+//    var toWalletBalanceNotExceed: BehaviorRelay<Bool> { get }
     
 }
 
@@ -58,7 +59,7 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurre
             "JPY": 12990.30
         ]
 //    let walletBalance: Double = 15000.05
-//    let baseCurrency = "SGD"
+    let baseCurrency = "SGD"
     
     var changingFrom: Bool = false
     var changingTo: Bool = false
@@ -82,13 +83,13 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurre
     
     var didEnterToAmount: BehaviorRelay<String?> = BehaviorRelay<String?>(value: nil)
     let didSelectConvertButton: PublishRelay<Void> = PublishRelay<Void>()
-    let enableConvertButton: PublishRelay<Bool> = PublishRelay<Bool>()
+    
     let didSelectHistoryButton: PublishRelay<Void> = PublishRelay<Void>()
     
     
     // output
     let isLoadingFirstPage: BehaviorRelay<Bool> = BehaviorRelay<Bool>(value: false)
-    
+    let enableConvertButton: BehaviorDriver<Bool> = BehaviorDriver<Bool>(value: false)
     let currencyRateModel: BehaviorRelay<CurrencyRateModel?> =  BehaviorRelay<CurrencyRateModel?>(value: nil)
     
     let availableExchangeRates: BehaviorRelay<[DropdownOption]> =  BehaviorRelay<[DropdownOption]>(value: [])
@@ -96,12 +97,12 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurre
     let rateExchange: PublishRelay<Double> = PublishRelay<Double>()
     let rateExchangeLabel: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
     let fromWalletBalance: PublishRelay<Double> = PublishRelay<Double>()
-    let fromWalletBalanceLabel: PublishRelay<String> = PublishRelay<String>()
-    let fromWalletBalanceNotExceed: PublishRelay<Bool> = PublishRelay<Bool>()
+    let fromWalletBalanceLabel: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
+    let fromWalletBalanceNotExceed: BehaviorRelay<Bool> = BehaviorRelay<Bool>(value: true)
     
     let toWalletBalance: PublishRelay<Double> = PublishRelay<Double>()
-    let toWalletBalanceLabel: PublishRelay<String> = PublishRelay<String>()
-    let toWalletBalanceNotExceed: PublishRelay<Bool> = PublishRelay<Bool>()
+    let toWalletBalanceLabel: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
+//    let toWalletBalanceNotExceed: BehaviorRelay<Bool> = BehaviorRelay<Bool>()
     
     let amountToBeConvertedString: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
     
@@ -125,8 +126,8 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurre
                 self.convertRatesFromDictToDropDownOptions(rates: m.rates)
                 return m
             }
-            }.bind(to: currencyRateModel)
-        .disposed(by: disposeBag)
+        }
+        .bind(to: currencyRateModel).disposed(by: disposeBag)
     }
     
     private func requestExchangeRate(from: String, to: String) {
@@ -138,6 +139,7 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurre
                     guard let rateEx = r.rates[to] else { return 0 }
                     return rateEx
                 }
+                
             }.bind(to: rateExchange)
             .disposed(by: disposeBag)
     }
@@ -147,6 +149,11 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurre
             return DropdownOption(key: key, val: key)
         }.sorted { (a, b) -> Bool in
             a.key<b.key
+        }
+        if let defaultToCurrency = sortedRates.first?.key {
+            /// as initial, select base currency and take the first of the rates available for convert to
+            self.didSelectFromCurrency.accept(self.baseCurrency)
+            self.didSelectToCurrency.accept(defaultToCurrency)
         }
         availableExchangeRates.accept(sortedRates)
     }
@@ -189,17 +196,19 @@ extension CurrencyConversionViewModel {
     }
     private func bindOnDidSelectDropdownItem() {
         
-        didSelectFromCurrency.filter({!$0.isEmpty}).observeOn(MainScheduler.instance)
+        /// update label to reflect balance in wallet for a selected currency
+        didSelectFromCurrency.filter({!$0.isEmpty})
             .map { (fromCur) -> String in
                 return "Balance: \(fromCur) " + String(format: "%.2f", self.currentValueInWalletFor(currency: fromCur))
             }.bind(to: fromWalletBalanceLabel).disposed(by: disposeBag)
         
-        didSelectToCurrency.filter({!$0.isEmpty}).observeOn(MainScheduler.instance)
+        /// update label to reflect balance in wallet for a selected currency
+        didSelectToCurrency.filter({!$0.isEmpty})
         .map { (toCur) -> String in
             return "Balance: \(toCur) " + String(format: "%.2f", self.currentValueInWalletFor(currency: toCur))
         }.bind(to: toWalletBalanceLabel).disposed(by: disposeBag)
         
-        
+        /// when either currency has been selected, request to find the rate exchange between them
         Observable.combineLatest(didSelectFromCurrency.filter({!$0.isEmpty}), didSelectToCurrency.filter({!$0.isEmpty}))
             .debounce(.microseconds(50), scheduler: MainScheduler.instance)
             .subscribe(onNext: { [unowned self] (fromValue, toValue) in
@@ -207,6 +216,7 @@ extension CurrencyConversionViewModel {
             })
             .disposed(by: disposeBag)
         
+        /// when rate exchanged has been calculated, update rateExchangeLabel
         Observable.combineLatest(didSelectFromCurrency, didSelectToCurrency, rateExchange)
             .subscribe(onNext: { [unowned self] (selectedFrom, selectedTo, rate) in
                 self.calculateRateExchangeLabel(selectedFrom: selectedFrom, selectedTo: selectedTo, rateExchange: rate)
@@ -259,7 +269,7 @@ extension CurrencyConversionViewModel {
             })
         .disposed(by: disposeBag)
         
-
+        // if the inputs are fired
         Observable.combineLatest(didSelectFromCurrency, didEnterFromAmount, currencyRateModel)
             .debounce(.microseconds(0), scheduler: MainScheduler.instance)
             .subscribe(onNext: { [unowned self] (cur, strOpt, allRatesModel) in
@@ -270,6 +280,17 @@ extension CurrencyConversionViewModel {
                 self.fromWalletBalanceNotExceed.accept(isAvailable)
                 self.enableConvertButton.accept(isAvailable)
             }).disposed(by: disposeBag)
+        
+        Observable.combineLatest(didSelectToCurrency, didEnterToAmount, currencyRateModel)
+        .debounce(.microseconds(0), scheduler: MainScheduler.instance)
+        .subscribe(onNext: { [unowned self] (cur, strOpt, allRatesModel) in
+            guard let string = strOpt, let dou = Double(string) else {
+                return
+            }
+            let isAvailable = self.isCurrentWalletBalanceAvailable(currency: cur, deducting: dou)
+            self.fromWalletBalanceNotExceed.accept(isAvailable)
+            self.enableConvertButton.accept(isAvailable)
+        }).disposed(by: disposeBag)
     }
     
     private func bindButtons() {

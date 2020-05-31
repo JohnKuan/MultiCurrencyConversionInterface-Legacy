@@ -66,6 +66,14 @@ class CurrencyInputCard: UIView {
         return dropDown
     }()
     
+    lazy var walletBalanceLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .gray
+        label.text = "Balance: "
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     lazy var textFieldToolBar: UIToolbar = {
         let toolbar = UIToolbar(frame: CGRect(origin: .zero, size: .init(width: self.frame.width, height: 30)))
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
@@ -127,17 +135,44 @@ extension CurrencyInputCard {
     
     func bindAll() {
         bindDropdowns()
+        bindWalletBalanceLabel()
 
     }
     
     private func bindDropdowns() {
        viewModel.availableExchangeRates
-           .observeOn(MainScheduler.instance)
-           .bind(onNext: { (newOptions) in
+            .asDriver()
+            .drive(onNext: { (newOptions) in
                 self.setOptions(options: newOptions)
            })
            .disposed(by: disposeBag)
+        switch currencyInputCardType {
+        case .From:
+            viewModel.didSelectFromCurrency.asDriver().drive(dropDownButton.rx.title(for: .normal)).disposed(by: disposeBag)
+        default:
+            viewModel.didSelectToCurrency.asDriver().drive(dropDownButton.rx.title(for: .normal)).disposed(by: disposeBag)
+        }
    }
+    
+    private func bindWalletBalanceLabel() {
+        switch currencyInputCardType {
+        case .From:
+            viewModel.fromWalletBalanceLabel
+                .asDriver(onErrorJustReturn: "")
+                .drive(walletBalanceLabel.rx.text)
+                .disposed(by: disposeBag)
+            
+            viewModel.fromWalletBalanceNotExceed.asDriver(onErrorJustReturn: false)
+                .drive(onNext: { [unowned self] (isNotExceeded) in
+                    self.walletBalanceLabel.textColor = isNotExceeded ? UIColor.gray : UIColor.red
+                }).disposed(by: disposeBag)
+        default:
+            viewModel.toWalletBalanceLabel
+                .asDriver(onErrorJustReturn: "")
+                .drive(walletBalanceLabel.rx.text)
+                .disposed(by: disposeBag)
+        }
+    }
 }
 
 extension CurrencyInputCard {
@@ -158,6 +193,7 @@ extension CurrencyInputCard {
         addSubview(dropDownView)
         addSubview(titleLabel)
         addSubview(textField)
+        addSubview(walletBalanceLabel)
         
         NSLayoutConstraint.activate([
             titleLabel.leftAnchor.constraint(equalTo: leftAnchor),
@@ -169,8 +205,6 @@ extension CurrencyInputCard {
             dropDownButton.leftAnchor.constraint(equalTo: leftAnchor),
             dropDownButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5.0),
             dropDownButton.widthAnchor.constraint(equalToConstant: 100.0),
-
-            dropDownButton.bottomAnchor.constraint(greaterThanOrEqualTo: bottomAnchor)
         ])
         
         
@@ -179,6 +213,16 @@ extension CurrencyInputCard {
             textField.topAnchor.constraint(equalTo: dropDownButton.topAnchor),
             textField.bottomAnchor.constraint(equalTo: dropDownButton.bottomAnchor),
             textField.rightAnchor.constraint(equalTo: rightAnchor, constant: -Dimensions.padding),
+        ])
+        
+        NSLayoutConstraint.activate([
+            walletBalanceLabel.leftAnchor
+                .constraint(equalTo: leftAnchor),
+            walletBalanceLabel.topAnchor
+                .constraint(equalTo: dropDownButton.bottomAnchor, constant: 5.0),
+            walletBalanceLabel.rightAnchor
+                .constraint(equalTo: rightAnchor, constant: -Dimensions.padding),
+            walletBalanceLabel.bottomAnchor.constraint(greaterThanOrEqualTo: bottomAnchor)
         ])
     }
 }

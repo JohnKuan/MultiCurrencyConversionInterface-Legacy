@@ -50,6 +50,4 @@ class MockExchangeRateAPIService: IExchangeRateAPIService {
         let model = try! JSONDecoder().decode(CurrencyRateModel.self, from: data)
         return Observable.just(.success(model))
     }
-    
-    
 }

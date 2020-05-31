@@ -24,7 +24,7 @@ class CurrencyConvertorViewController: UIViewController {
         // Do any additional setup after loading the view.
         setupUI()
         bindRatesLabel()
-        bindWalletBalanceLabel()
+//        bindWalletBalanceLabel()
         bindButtons()
         
         /// load this for the first time only then comment out - this loads the original wallet into the persistent data
@@ -59,22 +59,6 @@ class CurrencyConvertorViewController: UIViewController {
         let label = UILabel()
         label.textColor = .gray
         label.text = ""
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    lazy var fromWalletBalanceLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .gray
-        label.text = "Balance: "
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    lazy var toWalletBalanceLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .gray
-        label.text = "Balance: "
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -117,36 +101,17 @@ extension CurrencyConvertorViewController {
         
         // convert button
         convertButton.rx.tap.bind(to: viewModel.didSelectConvertButton).disposed(by: disposeBag)
-        viewModel.enableConvertButton.observeOn(MainScheduler.instance).bind(to: convertButton.rx.isEnabled).disposed(by: disposeBag)
-        
+        viewModel.enableConvertButton.drive(convertButton.rx.isEnabled).disposed(by: disposeBag)
+        // history button
         historyButton.rx.tap.bind(to: viewModel.didSelectHistoryButton).disposed(by: disposeBag)
     }
     
-    private func bindWalletBalanceLabel() {
-        viewModel.fromWalletBalanceLabel
-            .observeOn(MainScheduler.instance)
-            .bind (to: fromWalletBalanceLabel.rx.text)
-        .disposed(by: disposeBag)
-        
-        viewModel.fromWalletBalanceNotExceed.observeOn(MainScheduler.instance)
-            .subscribe(onNext: { [unowned self] (available) in
-                self.fromWalletBalanceLabel.textColor = available ? UIColor.gray : UIColor.red
-            }).disposed(by: disposeBag)
-        
-        viewModel.toWalletBalanceLabel
-            .observeOn(MainScheduler.instance)
-            .bind (to: toWalletBalanceLabel.rx.text)
-        .disposed(by: disposeBag)
-        
-    }
-    
     private func bindRatesLabel() {
-        viewModel.rateExchangeLabel
-            .observeOn(MainScheduler.instance)
+        viewModel.rateExchangeLabel.asDriver()
             .map({ (res) -> String in
                 return "Rates: \(res)"
             })
-            .bind(to: ratesCalculatedLabel.rx.text)
+            .drive(ratesCalculatedLabel.rx.text)
             .disposed(by: disposeBag)
     }
     
@@ -164,8 +129,6 @@ extension CurrencyConvertorViewController {
         self.view.addSubview(fromCardComponent)
         self.view.addSubview(toCardComponent)
         self.view.addSubview(ratesCalculatedLabel)
-        self.view.addSubview(fromWalletBalanceLabel)
-        self.view.addSubview(toWalletBalanceLabel)
         self.view.addSubview(convertButton)
         self.view.addSubview(historyButton)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing)))
@@ -179,7 +142,7 @@ extension CurrencyConvertorViewController {
             fromCardComponent.rightAnchor
                 .constraint(equalTo: self.view.rightAnchor, constant: -Dimensions.padding),
             fromCardComponent.heightAnchor
-                .constraint(equalToConstant: 60)
+                .constraint(equalToConstant: 90)
         ])
         
         NSLayoutConstraint.activate([
@@ -190,35 +153,18 @@ extension CurrencyConvertorViewController {
             toCardComponent.rightAnchor
                 .constraint(equalTo: self.view.rightAnchor, constant: -Dimensions.padding),
             toCardComponent.heightAnchor
-                .constraint(equalToConstant: 60)
+                .constraint(equalToConstant: 90)
         ])
         
         NSLayoutConstraint.activate([
             ratesCalculatedLabel.leftAnchor
                 .constraint(equalTo: self.view.leftAnchor, constant: Dimensions.padding),
             ratesCalculatedLabel.topAnchor
-                .constraint(equalTo: self.fromWalletBalanceLabel.bottomAnchor, constant: 25.0),
+                .constraint(equalTo: self.fromCardComponent.bottomAnchor, constant: 25.0),
             ratesCalculatedLabel.rightAnchor
                 .constraint(equalTo: self.view.rightAnchor, constant: -Dimensions.padding),
         ])
         
-        NSLayoutConstraint.activate([
-            fromWalletBalanceLabel.leftAnchor
-                .constraint(equalTo: self.view.leftAnchor, constant: Dimensions.padding),
-            fromWalletBalanceLabel.topAnchor
-                .constraint(equalTo: self.fromCardComponent.bottomAnchor, constant: 5.0),
-            fromWalletBalanceLabel.rightAnchor
-                .constraint(equalTo: self.view.rightAnchor, constant: -Dimensions.padding),
-        ])
-        
-        NSLayoutConstraint.activate([
-            toWalletBalanceLabel.leftAnchor
-                .constraint(equalTo: self.view.leftAnchor, constant: Dimensions.padding),
-            toWalletBalanceLabel.topAnchor
-                .constraint(equalTo: self.toCardComponent.bottomAnchor, constant: 5.0),
-            toWalletBalanceLabel.rightAnchor
-                .constraint(equalTo: self.view.rightAnchor, constant: -Dimensions.padding),
-        ])
         
         NSLayoutConstraint.activate([
             convertButton.leftAnchor
