@@ -42,3 +42,27 @@ struct Dimensions {
     static let padding: CGFloat = 15.0
     static let smallPadding: CGFloat = 8.0
 }
+
+struct CurrencyConverter {
+    static func getSymbolForCurrencyCode(code: String) -> String? {
+        let result = getLocalForCurrencyCode(code: code)
+        return result?.currencySymbol
+    }
+    static func getLocalForCurrencyCode(code: String) -> Locale? {
+        return Locale.availableIdentifiers.map { Locale(identifier: $0) }.first { $0.currencyCode == code }
+    }
+    
+    static func convertCurrencyToDouble(local: Locale, input: String) -> Double? {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .currency
+        numberFormatter.locale = local
+        return numberFormatter.number(from: input)?.doubleValue
+    }
+    
+    static func convertDoubleToCurrency(local: Locale, amount: Double) -> String {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .currency
+        numberFormatter.locale = local
+        return numberFormatter.string(from: NSNumber(value: amount)) ?? ""
+    }
+}
