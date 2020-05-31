@@ -41,7 +41,21 @@ class CurrencyConvertorViewController: UIViewController {
     
     lazy var fromCardComponent: CurrencyInputCard = {
         let view = CurrencyInputCard(type: .From, viewModel: viewModel)
-        (view.textField.rx.text <-> viewModel.didEnterFromAmount).disposed(by: disposeBag)
+        (view.currencyTextField.rx.value.orEmpty <-> viewModel.didEnterFromAmount).disposed(by: disposeBag)
+        
+        
+//        viewModel.didEnterFromAmountVal
+//            .asDriver()
+//            .map({ (newVal) -> String in
+//            return view.currencyTextField.convertDoubleToCurrency(amount: newVal)
+//            }).drive(view.currencyTextField.rx.value).disposed(by: disposeBag)
+//        view.currencyTextField.rx.value.debounce(.microseconds(5000), scheduler: MainScheduler.instance)
+//            .map({ (val) -> Double in
+//            guard let str = val, let dou = view.currencyTextField.convertCurrencyToDouble(input: str) else { return 0 }
+//            return dou
+//            }).bind(to: viewModel.didEnterFromAmountVal).disposed(by: disposeBag)
+        
+//        ( <-> viewModel.didEnterFromAmountVal).disposed(by: disposeBag)
         view.bindAll()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -49,7 +63,7 @@ class CurrencyConvertorViewController: UIViewController {
     
     lazy var toCardComponent: CurrencyInputCard = {
         let view = CurrencyInputCard(type: .To, viewModel: viewModel)
-        (view.textField.rx.text <-> viewModel.didEnterToAmount).disposed(by: disposeBag)
+        (view.currencyTextField.rx.value.orEmpty <-> viewModel.didEnterToAmount).disposed(by: disposeBag)
         view.bindAll()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view

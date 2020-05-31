@@ -14,12 +14,17 @@ import RealmSwift
 
 protocol ICurrencyConversionViewModel: class {
     var viewDidLoad: PublishRelay<Void> { get }
-    var didSelectFromCurrency: BehaviorRelay<String> { get }
-    var didEnterFromAmount: BehaviorRelay<String?> { get }
-    var didSelectToCurrency: BehaviorRelay<String> { get }
-    var didEnterToAmount: BehaviorRelay<String?> { get }
-    var didSelectConvertButton: PublishRelay<Void> { get }
     
+    var didSelectFromCurrency: BehaviorRelay<String> { get }
+    var didEnterFromAmount: BehaviorRelay<String> { get }
+    var didEnterFromAmountVal: BehaviorRelay<Double> {get}
+    
+    var didSelectToCurrency: BehaviorRelay<String> { get }
+    var didEnterToAmount: BehaviorRelay<String> { get }
+    var didEnterToAmountVal: BehaviorRelay<Double> {get}
+    
+    // buttons
+    var didSelectConvertButton: PublishRelay<Void> { get }
     var didSelectHistoryButton: PublishRelay<Void> { get }
     
     // Output
@@ -51,6 +56,8 @@ class TestCurrencyConversionViewModel: ITestableCurrencyConversionViewModel {
 
 class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurrencyConversionViewModel  {
     let repo = Repository()
+    var localeFrom: Locale = Locale.current
+    var localeTo: Locale = Locale.current
     
     var wallet: Dictionary<String, Double> =
         [
@@ -75,15 +82,17 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurre
     
     let viewDidLoad: PublishRelay<Void> = PublishRelay<Void>()
     
+    // input
     let didSelectFromCurrency: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
-    
-    var didEnterFromAmount: BehaviorRelay<String?> = BehaviorRelay<String?>(value: nil)
+    var didEnterFromAmount: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
+    var didEnterFromAmountVal: BehaviorRelay<Double> = BehaviorRelay<Double>(value: 0)
     
     var didSelectToCurrency: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
+    var didEnterToAmount: BehaviorRelay<String> = BehaviorRelay<String>(value: "")
+    var didEnterToAmountVal: BehaviorRelay<Double> = BehaviorRelay<Double>(value: 0)
     
-    var didEnterToAmount: BehaviorRelay<String?> = BehaviorRelay<String?>(value: nil)
+    
     let didSelectConvertButton: PublishRelay<Void> = PublishRelay<Void>()
-    
     let didSelectHistoryButton: PublishRelay<Void> = PublishRelay<Void>()
     
     
@@ -115,6 +124,10 @@ class CurrencyConversionViewModel : ICurrencyConversionViewModel, ITestableCurre
         bindOnTextFieldDidChange()
         bindButtons()
         bindCalculateConversion()
+        
+        didEnterFromAmountVal.subscribe(onNext: { (v) in
+            print(v)
+            }).disposed(by: disposeBag)
     }
     
     private func getCurrencyRate() {
@@ -199,12 +212,14 @@ extension CurrencyConversionViewModel {
         /// update label to reflect balance in wallet for a selected currency
         didSelectFromCurrency.filter({!$0.isEmpty})
             .map { (fromCur) -> String in
+                self.localeFrom = CurrencyConverter.getLocalForCurrencyCode(code: fromCur) ?? Locale.current
                 return "Balance: \(fromCur) " + String(format: "%.2f", self.currentValueInWalletFor(currency: fromCur))
             }.bind(to: fromWalletBalanceLabel).disposed(by: disposeBag)
         
         /// update label to reflect balance in wallet for a selected currency
         didSelectToCurrency.filter({!$0.isEmpty})
         .map { (toCur) -> String in
+            self.localeTo = CurrencyConverter.getLocalForCurrencyCode(code: toCur) ?? Locale.current
             return "Balance: \(toCur) " + String(format: "%.2f", self.currentValueInWalletFor(currency: toCur))
         }.bind(to: toWalletBalanceLabel).disposed(by: disposeBag)
         
@@ -225,24 +240,46 @@ extension CurrencyConversionViewModel {
     
     typealias ItemType<T> = (current: T, previous: T)
     private func bindOnTextFieldDidChange() {
+        
+        let fromOB = Observable.combineLatest(
+            didSelectFromCurrency,
+            didEnterFromAmount
+            ).observeOn(MainScheduler.instance).map { (fromCur, enterAmount) -> Double in
+            guard let convertedAmount = CurrencyConverter.convertCurrencyToDouble(local: self.localeFrom, input: enterAmount) else { return 0 }
+            return convertedAmount
+        }
+        
+        let toOB = Observable.combineLatest(
+            didSelectToCurrency,
+            didEnterToAmount
+            ).observeOn(MainScheduler.instance).map { (toCur, enterAmount) -> Double in
+            guard let convertedAmount = CurrencyConverter.convertCurrencyToDouble(local: self.localeTo, input: enterAmount) else { return 0 }
+            return convertedAmount
+        }
+        
         Observable.combineLatest(
-            didEnterFromAmount.debounce(.microseconds(0), scheduler: MainScheduler.instance).map({ $0 ?? ""}).currentAndPrevious(),
-            didEnterToAmount.debounce(.microseconds(0), scheduler: MainScheduler.instance).map({ $0 ?? ""}).currentAndPrevious(),
+            didSelectFromCurrency,
+            fromOB.currentAndPrevious(),
+            didSelectToCurrency,
+            toOB.currentAndPrevious(),
             rateExchange.currentAndPrevious())
-            .filter({ (first: ItemType, second: ItemType, rateEx: ItemType) -> Bool in
-                let d1 = Double(first.current) ?? 0
-                let d2 = Double(second.current) ?? 0
-                return  !d2.isEqual(to:d1 * rateEx.current) && !d1.isEqual(to: d2 / rateEx.current)
-            })
+//            .filter({ (firstCur: String, first: ItemType, secondCur: String, second: ItemType, rateEx: ItemType) -> Bool in
+//                let d1 = first.current
+//                let d2 = second.current
+//                return  !d2.isEqual(to:d1 * rateEx.current) && !d1.isEqual(to: d2 / rateEx.current)
+//            })
             .observeOn(MainScheduler.instance)
-            .subscribe(onNext: { [unowned self] (first: ItemType, second: ItemType, rateEx: ItemType) in
+            
+            .subscribe(onNext: { [unowned self] (firstCur: String, first: ItemType, secondCur: String, second: ItemType, rateEx: ItemType) in
                 if first.current != first.previous && second.current == second.previous {
                     // first was changed
                     if !self.changingFrom {
                         do {
-                            guard let d = Double(first.current) else { return }
+//                            guard let locale = CurrencyConverter.getLocalForCurrencyCode(code: secondCur) else { return }
+//                            guard let d = Double(first.current) else { return }
                             self.changingTo = true
-                            self.didEnterToAmount.accept(String(format: "%.2f", d * rateEx.current))
+                            let convertedString = CurrencyConverter.convertDoubleToCurrency(local: self.localeTo, amount: first.current * rateEx.current)
+                            self.didEnterToAmount.accept(convertedString)
                         }
                     } else {
                         self.changingFrom = false
@@ -252,9 +289,11 @@ extension CurrencyConversionViewModel {
                     // second was changed
                     if !self.changingTo {
                         do {
-                            guard let d = Double(second.current) else { return }
+//                            guard let locale = CurrencyConverter.getLocalForCurrencyCode(code: firstCur) else { return }
+//                            guard let d = Double(second.current) else { return }
                             self.changingFrom = true
-                            self.didEnterFromAmount.accept(String(format: "%.2f", d / rateEx.current))
+                            let convertedString = CurrencyConverter.convertDoubleToCurrency(local: self.localeFrom, amount: second.current / rateEx.current)
+                            self.didEnterFromAmount.accept(convertedString)
                         }
                     } else {
                            self.changingTo = false
@@ -262,8 +301,10 @@ extension CurrencyConversionViewModel {
                     
                 } else if rateEx.current != rateEx.previous {
                     do {
-                        guard let d1 = Double(first.current) else { return }
-                        self.didEnterToAmount.accept(String(format: "%.2f", d1 * rateEx.current))
+//                        guard let locale = CurrencyConverter.getLocalForCurrencyCode(code: secondCur) else { return }
+//                        guard let d1 = Double(first.current) else { return }
+                        let convertedString = CurrencyConverter.convertDoubleToCurrency(local: self.localeTo, amount: first.current * rateEx.current)
+                        self.didEnterToAmount.accept(convertedString)
                     }
                 }
             })
@@ -272,8 +313,8 @@ extension CurrencyConversionViewModel {
         // if the inputs are fired
         Observable.combineLatest(didSelectFromCurrency, didEnterFromAmount, currencyRateModel)
             .debounce(.microseconds(0), scheduler: MainScheduler.instance)
-            .subscribe(onNext: { [unowned self] (cur, strOpt, allRatesModel) in
-                guard let string = strOpt, let dou = Double(string) else {
+            .subscribe(onNext: { [unowned self] (cur, string, allRatesModel) in
+                guard let dou = Double(string) else {
                     return
                 }
                 let isAvailable = self.isCurrentWalletBalanceAvailable(currency: cur, deducting: dou)
@@ -281,16 +322,16 @@ extension CurrencyConversionViewModel {
                 self.enableConvertButton.accept(isAvailable)
             }).disposed(by: disposeBag)
         
-        Observable.combineLatest(didSelectToCurrency, didEnterToAmount, currencyRateModel)
-        .debounce(.microseconds(0), scheduler: MainScheduler.instance)
-        .subscribe(onNext: { [unowned self] (cur, strOpt, allRatesModel) in
-            guard let string = strOpt, let dou = Double(string) else {
-                return
-            }
-            let isAvailable = self.isCurrentWalletBalanceAvailable(currency: cur, deducting: dou)
-            self.fromWalletBalanceNotExceed.accept(isAvailable)
-            self.enableConvertButton.accept(isAvailable)
-        }).disposed(by: disposeBag)
+//        Observable.combineLatest(didSelectToCurrency, didEnterToAmount, currencyRateModel)
+//        .debounce(.microseconds(0), scheduler: MainScheduler.instance)
+//        .subscribe(onNext: { [unowned self] (cur, strOpt, allRatesModel) in
+//            guard let string = strOpt, let dou = Double(string) else {
+//                return
+//            }
+//            let isAvailable = self.isCurrentWalletBalanceAvailable(currency: cur, deducting: dou)
+//            self.fromWalletBalanceNotExceed.accept(isAvailable)
+//            self.enableConvertButton.accept(isAvailable)
+//        }).disposed(by: disposeBag)
     }
     
     private func bindButtons() {
@@ -318,10 +359,10 @@ extension CurrencyConversionViewModel {
         Observable.combineLatest(didSelectFromCurrency, didEnterFromAmount, didSelectToCurrency, didEnterToAmount)
             .observeOn(MainScheduler.instance)
             .map({ (fromCur, fromAmountString, toCur, toAmountString) -> String in
-                guard let fromAmt = fromAmountString, let toAmt = toAmountString else {
-                    return ""
-                }
-                let conversionString = fromCur + fromAmt + " to " + toCur + toAmt
+//                guard let fromAmt = fromAmountString, let toAmt = toAmountString else {
+//                    return ""
+//                }
+                let conversionString = fromCur + fromAmountString + " to " + toCur + toAmountString
                 return conversionString
             })
             .bind(to: amountToBeConvertedString)
@@ -348,7 +389,11 @@ extension CurrencyConversionViewModel {
     private func deductAmount() {
        let disposable = Observable.combineLatest(didSelectFromCurrency, didEnterFromAmount, didSelectToCurrency, didEnterToAmount)
             .subscribe(onNext: { [unowned self] (fromCur, fromAmountString, toCur, toAmountString) in
-                guard let fromValue = self.wallet[fromCur], let deductingAmount = Double(fromAmountString ?? "0"), let addingAmount = Double(toAmountString ?? "0") else { return }
+                
+                guard let deductingAmount = CurrencyConverter.convertCurrencyToDouble(local: self.localeFrom, input: fromAmountString) else { return }
+                guard let addingAmount = CurrencyConverter.convertCurrencyToDouble(local: self.localeTo, input: toAmountString) else { return }
+                guard let fromValue = self.wallet[fromCur] else { return }
+                
                 self.wallet[fromCur] = fromValue - deductingAmount
                 self.wallet[toCur] = (self.wallet[toCur] ?? 0) + addingAmount
                 // save into repo
@@ -357,8 +402,9 @@ extension CurrencyConversionViewModel {
                 
                 self.didEnterFromAmount.accept("")
                 self.didEnterToAmount.accept("")
-                self.fromWalletBalanceLabel.accept("Balance: \(fromCur) " + String(format: "%.2f", self.currentValueInWalletFor(currency: fromCur)))
-                self.toWalletBalanceLabel.accept("Balance: \(toCur) " + String(format: "%.2f", self.currentValueInWalletFor(currency: toCur)))
+                
+                self.fromWalletBalanceLabel.accept("Balance: \(fromCur) " + CurrencyConverter.convertDoubleToCurrency(local: self.localeFrom, amount: self.currentValueInWalletFor(currency: fromCur)))
+                self.toWalletBalanceLabel.accept("Balance: \(toCur) " + CurrencyConverter.convertDoubleToCurrency(local: self.localeTo, amount: self.currentValueInWalletFor(currency: toCur)))
                 self.enableConvertButton.accept(false)
                 print(self.wallet)
                 self.coordinator.pushToHistory()

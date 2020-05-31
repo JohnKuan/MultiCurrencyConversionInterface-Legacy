@@ -83,14 +83,21 @@ class CurrencyInputCard: UIView {
         return toolbar
     }()
     
-    lazy var textField: UITextField = {
-        let textField = UITextField()
-        textField.keyboardType = .decimalPad
-        textField.placeholder = "e.g. 1000"
+    lazy var currencyTextField: CurrencyTextField = {
+        let textField = CurrencyTextField()
         textField.inputAccessoryView = textFieldToolBar
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
+//
+//    lazy var textField: UITextField = {
+//        let textField = UITextField()
+//        textField.keyboardType = .decimalPad
+//        textField.placeholder = "e.g. 1000"
+//        textField.inputAccessoryView = textFieldToolBar
+//        textField.translatesAutoresizingMaskIntoConstraints = false
+//        return textField
+//    }()
     
     public init(type: CurrencyInputCardType, viewModel: CurrencyConversionViewModel) {
         super.init(frame: .zero)
@@ -140,17 +147,28 @@ extension CurrencyInputCard {
     }
     
     private func bindDropdowns() {
+        /// bind when available exchange rates are provided by source
        viewModel.availableExchangeRates
             .asDriver()
             .drive(onNext: { (newOptions) in
                 self.setOptions(options: newOptions)
            })
            .disposed(by: disposeBag)
+        
+        /// set base on selected
         switch currencyInputCardType {
         case .From:
-            viewModel.didSelectFromCurrency.asDriver().drive(dropDownButton.rx.title(for: .normal)).disposed(by: disposeBag)
+            viewModel.didSelectFromCurrency.asDriver()
+                .do(onNext: { [unowned self] (val) in
+                    self.currencyTextField.changeCurrentLocal(code: val)
+                })
+                .drive(dropDownButton.rx.title(for: .normal)).disposed(by: disposeBag)
         default:
-            viewModel.didSelectToCurrency.asDriver().drive(dropDownButton.rx.title(for: .normal)).disposed(by: disposeBag)
+            viewModel.didSelectToCurrency.asDriver()
+                .do(onNext: { [unowned self] (val) in
+                    self.currencyTextField.changeCurrentLocal(code: val)
+                })
+                .drive(dropDownButton.rx.title(for: .normal)).disposed(by: disposeBag)
         }
    }
     
@@ -192,7 +210,7 @@ extension CurrencyInputCard {
         addSubview(dropDownButton)
         addSubview(dropDownView)
         addSubview(titleLabel)
-        addSubview(textField)
+        addSubview(currencyTextField)
         addSubview(walletBalanceLabel)
         
         NSLayoutConstraint.activate([
@@ -209,10 +227,10 @@ extension CurrencyInputCard {
         
         
         NSLayoutConstraint.activate([
-            textField.leftAnchor.constraint(equalTo: dropDownButton.rightAnchor, constant: Dimensions.padding),
-            textField.topAnchor.constraint(equalTo: dropDownButton.topAnchor),
-            textField.bottomAnchor.constraint(equalTo: dropDownButton.bottomAnchor),
-            textField.rightAnchor.constraint(equalTo: rightAnchor, constant: -Dimensions.padding),
+            currencyTextField.leftAnchor.constraint(equalTo: dropDownButton.rightAnchor, constant: Dimensions.padding),
+            currencyTextField.topAnchor.constraint(equalTo: dropDownButton.topAnchor),
+            currencyTextField.bottomAnchor.constraint(equalTo: dropDownButton.bottomAnchor),
+            currencyTextField.rightAnchor.constraint(equalTo: rightAnchor, constant: -Dimensions.padding),
         ])
         
         NSLayoutConstraint.activate([
