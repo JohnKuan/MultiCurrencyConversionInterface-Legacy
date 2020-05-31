@@ -173,6 +173,7 @@
 		B2CE2ED7247F57C30070FCC0 /* MultiCurrencyConversionInterface-Legacy */ = {
 			isa = PBXGroup;
 			children = (
+				B2D057EB2483831200F5EA11 /* Repository */,
 				B2CE2F2B247FBA300070FCC0 /* Util */,
 				B2CE2F22247F87910070FCC0 /* Coordinators */,
 				B2CE2F1F247F6F9C0070FCC0 /* ViewControllers */,
@@ -187,7 +188,6 @@
 				B2CE2EE6247F57C40070FCC0 /* LaunchScreen.storyboard */,
 				B2CE2EE9247F57C40070FCC0 /* Info.plist */,
 				B2CE2EE1247F57C30070FCC0 /* MultiCurrencyConversionInterface_Legacy.xcdatamodeld */,
-				B2E75737248113AF0067C226 /* Repository.swift */,
 			);
 			path = "MultiCurrencyConversionInterface-Legacy";
 			sourceTree = "<group>";
@@ -274,6 +274,14 @@
 				B2CE2F2E2480E9510070FCC0 /* UI+Extensions.swift */,
 			);
 			path = Util;
+			sourceTree = "<group>";
+		};
+		B2D057EB2483831200F5EA11 /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				B2E75737248113AF0067C226 /* Repository.swift */,
+			);
+			path = Repository;
 			sourceTree = "<group>";
 		};
 		C2778137B45580618CC3554C /* Frameworks */ = {

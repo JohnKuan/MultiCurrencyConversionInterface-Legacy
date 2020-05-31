@@ -148,6 +148,27 @@ class Repository {
 //        }
     }
     
+    func createExchangeRecord(exchangeItem: ExchangeItemHistory) {
+        backgroundQueue.async {
+            let realm = try! Realm()
+            try! realm.write{
+                realm.add(exchangeItem, update: .modified)
+            }
+        }
+    }
+        
+    func retrieveWallet() -> Dictionary<String, Double> {
+        let realm = try! Realm()
+        guard let retrievedWallet = realm.object(ofType: Wallet.self, forPrimaryKey: "1") else {
+            return [:]
+        }
+        return retrievedWallet.currencies.reduce([String:Double]()) { (dict, currency) -> [String:Double] in
+            var dict = dict
+            dict[currency.currencyId] = currency.balance
+            return dict
+        }
+    }
+    
     
    
 }

@@ -336,31 +336,13 @@ extension CurrencyConversionViewModel {
             conversionItem.date = Date()
             conversionItem.transactionAmount = transactionAmount
             conversionItem.transactionRate = rateEx
-            Repository().backgroundQueue.async {
-                let realm = try! Realm()
-                try! realm.write{
-                    realm.add(conversionItem, update: .modified)
-                }
-            }
-            
+            self.repo.createExchangeRecord(exchangeItem: conversionItem)
         })
         disposable.dispose()
     }
     
     private func retrieveWallet() {
-//        Repository().backgroundQueue.async {
-                let realm = try! Realm()
-                guard let retrievedWallet = realm.object(ofType: Wallet.self, forPrimaryKey: "1") else {
-                    return
-                }
-                self.wallet = retrievedWallet.currencies.reduce([String:Double]()) { (dict, currency) -> [String:Double] in
-                    var dict = dict
-                    dict[currency.currencyId] = currency.balance
-                    return dict
-                }
-            print(self.wallet)
-//        }
-        
+        self.wallet = repo.retrieveWallet()
     }
     
     private func deductAmount() {
